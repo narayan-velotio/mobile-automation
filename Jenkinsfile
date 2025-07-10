@@ -33,8 +33,12 @@ pipeline {
                         sed -i "s|bs://84b3afac8eca289505505c4cb935495f52b3fde8|$BROWSERSTACK_APP_ID|g" wdio.browserstack.conf.js
                     '''
                     
-                    // Run tests using the existing android-findElements.js test
-                    sh 'npm run test:browserstack'
+                    // Run tests using the existing android-findElements.js test with explicit environment variables
+                    sh '''
+                        export BROWSERSTACK_USERNAME="$BROWSERSTACK_USERNAME"
+                        export BROWSERSTACK_ACCESS_KEY="$BROWSERSTACK_ACCESS_KEY"
+                        npm run test:browserstack
+                    '''
                 }
             }
         }
