@@ -181,17 +181,6 @@ logs/
 appium.log
 appium-out.log
 
-# Android specific
-*.apk
-*.aab
-*.apks
-app/android/
-app/ios/
-
-# iOS specific
-*.ipa
-*.app
-
 # IDE specific
 .vscode/
 .idea/

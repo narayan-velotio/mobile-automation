@@ -27,6 +27,20 @@ pipeline {
         stage('Upload App to BrowserStack') {
             steps {
                 script {
+                    // Debug: Check if APK file exists
+                    sh '''
+                        echo "Current working directory: $(pwd)"
+                        echo "Checking if APK file exists..."
+                        ls -la app/android/
+                        if [ -f "app/android/ApiDemos-debug.apk" ]; then
+                            echo "APK file found!"
+                            ls -la app/android/ApiDemos-debug.apk
+                        else
+                            echo "APK file not found!"
+                            exit 1
+                        fi
+                    '''
+                    
                     // Upload the ApiDemos-debug.apk from app folder to BrowserStack
                     sh '''
                         curl -u "$BROWSERSTACK_USERNAME:$BROWSERSTACK_ACCESS_KEY" \
