@@ -1,8 +1,11 @@
 pipeline {
     agent any
     
+    tools {
+        nodejs 'Node_24'
+    }
+    
     environment {
-        NODE_VERSION = '18'
         BROWSERSTACK_USERNAME = credentials('browserstack-username')
         BROWSERSTACK_ACCESS_KEY = credentials('browserstack-access-key')
         BROWSERSTACK_APP_ID = credentials('browserstack-app-id')
@@ -12,20 +15,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-            }
-        }
-        
-        stage('Setup Node.js') {
-            steps {
-                script {
-                    // Install Node.js
-                    sh '''
-                        curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
-                        sudo apt-get install -y nodejs
-                        node --version
-                        npm --version
-                    '''
-                }
             }
         }
         
@@ -62,7 +51,7 @@ pipeline {
                 script {
                     // Update the config file with the actual app ID
                     sh '''
-                        sed -i "s|bs://sample-app|$APP_ID|g" wdio.browserstack.conf.js
+                        sed -i "s|bs://84b3afac8eca289505505c4cb935495f52b3fde8|$APP_ID|g" wdio.browserstack.conf.js
                     '''
                     
                     // Run tests using the existing android-findElements.js test
