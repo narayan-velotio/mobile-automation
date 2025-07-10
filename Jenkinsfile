@@ -27,20 +27,29 @@ pipeline {
         stage('Install Allure') {
             steps {
                 script {
-                    // Install Allure command line tool
+                    // Install Allure command line tool without sudo
                     sh '''
                         if ! command -v allure &> /dev/null; then
                             echo "Installing Allure command line tool..."
-                            # Download and install Allure
+                            # Create directory for Allure
+                            mkdir -p $HOME/allure
+                            
+                            # Download and install Allure to user directory
                             curl -o allure-2.24.1.tgz -Ls https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.24.1/allure-commandline-2.24.1.tgz
-                            sudo tar -zxvf allure-2.24.1.tgz -C /opt/
-                            sudo ln -sf /opt/allure-2.24.1/bin/allure /usr/local/bin/allure
+                            tar -zxvf allure-2.24.1.tgz -C $HOME/allure/
+                            
+                            # Add to PATH for this session
+                            export PATH=$PATH:$HOME/allure/allure-2.24.1/bin
+                            echo "export PATH=\$PATH:\$HOME/allure/allure-2.24.1/bin" >> $HOME/.bashrc
+                            
                             rm allure-2.24.1.tgz
-                            echo "Allure installed successfully"
+                            echo "Allure installed successfully in $HOME/allure/"
                         else
                             echo "Allure is already installed"
                         fi
-                        allure --version
+                        
+                        # Use the installed Allure
+                        $HOME/allure/allure-2.24.1/bin/allure --version || echo "Allure version check failed"
                     '''
                 }
             }
@@ -68,8 +77,11 @@ pipeline {
         stage('Generate Allure Report') {
             steps {
                 script {
-                    // Generate Allure HTML report
-                    sh 'allure generate allure-results --clean -o allure-report'
+                    // Generate Allure HTML report using the installed version
+                    sh '''
+                        export PATH=$PATH:$HOME/allure/allure-2.24.1/bin
+                        $HOME/allure/allure-2.24.1/bin/allure generate allure-results --clean -o allure-report
+                    '''
                     
                     // Archive test results and reports
                     archiveArtifacts artifacts: 'allure-results/**/*', fingerprint: true
