@@ -215,4 +215,10 @@ coverage/
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp
+
+# BrowserStack specific
+browserstack-local.log
+browserstack-local.pid
+.env.local
+.env.browserstack 
