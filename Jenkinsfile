@@ -24,6 +24,28 @@ pipeline {
             }
         }
         
+        stage('Install Allure') {
+            steps {
+                script {
+                    // Install Allure command line tool
+                    sh '''
+                        if ! command -v allure &> /dev/null; then
+                            echo "Installing Allure command line tool..."
+                            # Download and install Allure
+                            curl -o allure-2.24.1.tgz -Ls https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.24.1/allure-commandline-2.24.1.tgz
+                            sudo tar -zxvf allure-2.24.1.tgz -C /opt/
+                            sudo ln -sf /opt/allure-2.24.1/bin/allure /usr/local/bin/allure
+                            rm allure-2.24.1.tgz
+                            echo "Allure installed successfully"
+                        else
+                            echo "Allure is already installed"
+                        fi
+                        allure --version
+                    '''
+                }
+            }
+        }
+        
         stage('Run Tests on BrowserStack') {
             steps {
                 script {
@@ -43,14 +65,20 @@ pipeline {
             }
         }
         
-        stage('Generate Reports') {
+        stage('Generate Allure Report') {
             steps {
-                sh 'npm run report'
+                script {
+                    // Generate Allure HTML report
+                    sh 'allure generate allure-results --clean -o allure-report'
+                    
+                    // Archive test results and reports
+                    archiveArtifacts artifacts: 'allure-results/**/*', fingerprint: true
+                    archiveArtifacts artifacts: 'allure-report/**/*', fingerprint: true
+                    archiveArtifacts artifacts: 'screenshots/**/*', fingerprint: true, allowEmptyArchive: true
+                    archiveArtifacts artifacts: '*.log', fingerprint: true, allowEmptyArchive: true
+                }
                 
-                // Archive test results
-                archiveArtifacts artifacts: 'allure-results/**/*', fingerprint: true
-                
-                // Publish Allure report
+                // Publish Allure report to Jenkins UI
                 allure([
                     includeProperties: false,
                     jdk: '',
