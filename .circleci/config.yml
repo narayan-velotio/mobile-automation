@@ -4,32 +4,42 @@ version: 2.1
 orbs:
   node: circleci/node@5
 jobs:
-  test-node:
-    # Install node dependencies and run tests
+  test-mobile-automation:
+    # Install node dependencies and run mobile automation tests
     executor: node/default
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
       - run:
-          name: Run tests
-          command: echo \"No test specified in package.json\"
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
-    docker:
-      - image: cimg/base:stable
-    steps:
-      # Replace this with steps to deploy to users
-      - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
-      - run:
-          name: found jenkins config
-          command: ':'
+          name: Run mobile automation tests on BrowserStack
+          command: |
+            # Set BrowserStack credentials as environment variables
+            export BROWSERSTACK_USERNAME=$BROWSERSTACK_USERNAME
+            export BROWSERSTACK_ACCESS_KEY=$BROWSERSTACK_ACCESS_KEY
+            
+            # Run tests on BrowserStack
+            npm run test:browserstack
+          environment:
+            BROWSERSTACK_USERNAME: $BROWSERSTACK_USERNAME
+            BROWSERSTACK_ACCESS_KEY: $BROWSERSTACK_ACCESS_KEY
+      
+      - store_test_results:
+          path: allure-results
+      
+      - store_artifacts:
+          path: allure-report
+          destination: allure-report
+      
+      - store_artifacts:
+          path: screenshots
+          destination: screenshots
+      
+      - store_artifacts:
+          path: logs
+          destination: logs
+
 workflows:
   build-and-test:
     jobs:
-      - test-node
-    # - deploy:
-    #     requires:
-    #       - test-node
+      - test-mobile-automation
