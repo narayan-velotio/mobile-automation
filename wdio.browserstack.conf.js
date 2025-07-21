@@ -1,5 +1,28 @@
 const path = require('path');
 
+// Get BrowserStack credentials with validation
+const getBrowserStackCredentials = () => {
+    const username = process.env.BROWSERSTACK_USERNAME;
+    const accessKey = process.env.BROWSERSTACK_ACCESS_KEY;
+    
+    if (!username) {
+        throw new Error('BROWSERSTACK_USERNAME environment variable is not set');
+    }
+    if (!accessKey) {
+        throw new Error('BROWSERSTACK_ACCESS_KEY environment variable is not set');
+    }
+    
+    console.log('BrowserStack credentials validation:');
+    console.log('Username length:', username.length);
+    console.log('Access Key length:', accessKey.length);
+    console.log('Username starts with:', username.substring(0, 3));
+    console.log('Access Key starts with:', accessKey.substring(0, 5));
+    
+    return { username, accessKey };
+};
+
+const credentials = getBrowserStackCredentials();
+
 exports.config = {
     //
     // ====================
@@ -57,15 +80,9 @@ exports.config = {
         }]
     ],
     
-    // BrowserStack credentials with debugging
-    user: process.env.BROWSERSTACK_USERNAME || (() => {
-        console.error('BROWSERSTACK_USERNAME is not set');
-        return '';
-    })(),
-    key: process.env.BROWSERSTACK_ACCESS_KEY || (() => {
-        console.error('BROWSERSTACK_ACCESS_KEY is not set');
-        return '';
-    })(),
+    // BrowserStack credentials - use the validated credentials
+    user: credentials.username,
+    key: credentials.accessKey,
     
     // Framework
     framework: 'mocha',
@@ -89,14 +106,9 @@ exports.config = {
     // =====
     before: function (capabilities, specs) {
         // Debug: Print credentials (masked)
-        const username = process.env.BROWSERSTACK_USERNAME;
-        const accessKey = process.env.BROWSERSTACK_ACCESS_KEY;
-        
-        console.log('BrowserStack Configuration:');
-        console.log('Username:', username ? `${username.substring(0, 3)}***` : 'NOT SET');
-        console.log('Access Key:', accessKey ? `${accessKey.substring(0, 5)}***` : 'NOT SET');
-        console.log('Config user:', this.user ? `${this.user.substring(0, 3)}***` : 'NOT SET');
-        console.log('Config key:', this.key ? `${this.key.substring(0, 5)}***` : 'NOT SET');
+        console.log('BrowserStack Configuration in before hook:');
+        console.log('Username:', this.user ? `${this.user.substring(0, 3)}***` : 'NOT SET');
+        console.log('Access Key:', this.key ? `${this.key.substring(0, 5)}***` : 'NOT SET');
     },
 
     after: function (result, capabilities, specs) {

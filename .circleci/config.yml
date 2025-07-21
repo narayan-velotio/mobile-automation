@@ -14,10 +14,6 @@ jobs:
       - run:
           name: Run mobile automation tests on BrowserStack
           command: |
-            # Set BrowserStack credentials as environment variables
-            export BROWSERSTACK_USERNAME=$BROWSERSTACK_USERNAME
-            export BROWSERSTACK_ACCESS_KEY=$BROWSERSTACK_ACCESS_KEY
-            
             # Debug: Check if credentials are set
             echo "Checking BrowserStack credentials..."
             if [ -z "$BROWSERSTACK_USERNAME" ]; then
@@ -31,6 +27,15 @@ jobs:
             echo "BrowserStack credentials are set (masked for security)"
             echo "Username: ${BROWSERSTACK_USERNAME:0:3}***"
             echo "Access Key: ${BROWSERSTACK_ACCESS_KEY:0:5}***"
+            
+            # Set environment variables explicitly
+            export BROWSERSTACK_USERNAME="$BROWSERSTACK_USERNAME"
+            export BROWSERSTACK_ACCESS_KEY="$BROWSERSTACK_ACCESS_KEY"
+            
+            # Verify environment variables are set
+            echo "Verifying environment variables..."
+            echo "BROWSERSTACK_USERNAME length: ${#BROWSERSTACK_USERNAME}"
+            echo "BROWSERSTACK_ACCESS_KEY length: ${#BROWSERSTACK_ACCESS_KEY}"
             
             # Run tests on BrowserStack
             npm run test:browserstack
