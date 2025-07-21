@@ -18,6 +18,20 @@ jobs:
             export BROWSERSTACK_USERNAME=$BROWSERSTACK_USERNAME
             export BROWSERSTACK_ACCESS_KEY=$BROWSERSTACK_ACCESS_KEY
             
+            # Debug: Check if credentials are set
+            echo "Checking BrowserStack credentials..."
+            if [ -z "$BROWSERSTACK_USERNAME" ]; then
+              echo "ERROR: BROWSERSTACK_USERNAME is not set"
+              exit 1
+            fi
+            if [ -z "$BROWSERSTACK_ACCESS_KEY" ]; then
+              echo "ERROR: BROWSERSTACK_ACCESS_KEY is not set"
+              exit 1
+            fi
+            echo "BrowserStack credentials are set (masked for security)"
+            echo "Username: ${BROWSERSTACK_USERNAME:0:3}***"
+            echo "Access Key: ${BROWSERSTACK_ACCESS_KEY:0:5}***"
+            
             # Run tests on BrowserStack
             npm run test:browserstack
           environment:

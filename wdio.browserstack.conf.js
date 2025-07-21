@@ -30,7 +30,7 @@ exports.config = {
         'appium:deviceName': 'Samsung Galaxy S22',
         'appium:platformVersion': '12.0',
         'appium:automationName': 'UiAutomator2',
-        'appium:app': 'bs://84b3afac8eca289505505c4cb935495f52b3fde8', // This will be replaced with actual app ID in Jenkins
+        'appium:app': 'bs://84b3afac8eca289505505c4cb935495f52b3fde8',
         'bstack:options': {
             buildName: 'Mobile Automation Test',
             sessionName: 'Android App Test',
@@ -50,12 +50,22 @@ exports.config = {
     connectionRetryTimeout: 120000,
     connectionRetryCount: 3,
     
-    // BrowserStack service
-    services: ['browserstack'],
+    // BrowserStack service configuration
+    services: [
+        ['browserstack', {
+            browserstackLocal: false
+        }]
+    ],
     
-    // BrowserStack credentials
-    user: process.env.BROWSERSTACK_USERNAME,
-    key: process.env.BROWSERSTACK_ACCESS_KEY,
+    // BrowserStack credentials with debugging
+    user: process.env.BROWSERSTACK_USERNAME || (() => {
+        console.error('BROWSERSTACK_USERNAME is not set');
+        return '';
+    })(),
+    key: process.env.BROWSERSTACK_ACCESS_KEY || (() => {
+        console.error('BROWSERSTACK_ACCESS_KEY is not set');
+        return '';
+    })(),
     
     // Framework
     framework: 'mocha',
@@ -78,7 +88,15 @@ exports.config = {
     // Hooks
     // =====
     before: function (capabilities, specs) {
-        // Add any setup code here
+        // Debug: Print credentials (masked)
+        const username = process.env.BROWSERSTACK_USERNAME;
+        const accessKey = process.env.BROWSERSTACK_ACCESS_KEY;
+        
+        console.log('BrowserStack Configuration:');
+        console.log('Username:', username ? `${username.substring(0, 3)}***` : 'NOT SET');
+        console.log('Access Key:', accessKey ? `${accessKey.substring(0, 5)}***` : 'NOT SET');
+        console.log('Config user:', this.user ? `${this.user.substring(0, 3)}***` : 'NOT SET');
+        console.log('Config key:', this.key ? `${this.key.substring(0, 5)}***` : 'NOT SET');
     },
 
     after: function (result, capabilities, specs) {
