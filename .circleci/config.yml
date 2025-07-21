@@ -5,7 +5,10 @@ version: 2.1
 jobs:
   test-mobile-automation:
     docker:
-      - image: cimg/node:18.17
+      - image: cimg/node:20.11
+    environment:
+      BROWSERSTACK_USERNAME: $BROWSERSTACK_USERNAME
+      BROWSERSTACK_ACCESS_KEY: $BROWSERSTACK_ACCESS_KEY
     steps:
       - checkout
       
@@ -16,20 +19,20 @@ jobs:
       - run:
           name: Run mobile automation tests on BrowserStack
           command: |
-            # Set environment variables explicitly
-            export BROWSERSTACK_USERNAME="${BROWSERSTACK_USERNAME}"
-            export BROWSERSTACK_ACCESS_KEY="${BROWSERSTACK_ACCESS_KEY}"
-            
             # Debug: Check if credentials are set
             echo "Checking BrowserStack credentials..."
-            if [ -z "${BROWSERSTACK_USERNAME}" ]; then
+            echo "Raw BROWSERSTACK_USERNAME: $BROWSERSTACK_USERNAME"
+            echo "Raw BROWSERSTACK_ACCESS_KEY: ${BROWSERSTACK_ACCESS_KEY:0:5}***"
+            
+            if [ -z "$BROWSERSTACK_USERNAME" ]; then
               echo "ERROR: BROWSERSTACK_USERNAME is not set"
               exit 1
             fi
-            if [ -z "${BROWSERSTACK_ACCESS_KEY}" ]; then
+            if [ -z "$BROWSERSTACK_ACCESS_KEY" ]; then
               echo "ERROR: BROWSERSTACK_ACCESS_KEY is not set"
               exit 1
             fi
+            
             echo "BrowserStack credentials are set (masked for security)"
             echo "Username: ${BROWSERSTACK_USERNAME:0:3}***"
             echo "Access Key: ${BROWSERSTACK_ACCESS_KEY:0:5}***"
@@ -41,9 +44,6 @@ jobs:
             
             # Run tests on BrowserStack
             npm run test:browserstack
-          environment:
-            BROWSERSTACK_USERNAME: $BROWSERSTACK_USERNAME
-            BROWSERSTACK_ACCESS_KEY: $BROWSERSTACK_ACCESS_KEY
       
       - store_test_results:
           path: allure-results

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "wdio run ./wdio.browserstack.conf.js",
     "wdio": "wdio run ./wdio.conf.js",
     "test:browserstack": "wdio run ./wdio.browserstack.conf.js",
     "test:browserstack:parallel": "wdio run ./wdio.browserstack.conf.js --parallel",
@@ -27,5 +27,8 @@
   },
   "dependencies": {
     "appium": "^2.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
