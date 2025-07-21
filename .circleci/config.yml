@@ -1,36 +1,38 @@
 # This config was automatically generated from your source code
 # Stacks detected: cicd:jenkins:.,deps:node:.
 version: 2.1
-orbs:
-  node: circleci/node@5
+
 jobs:
   test-mobile-automation:
-    # Install node dependencies and run mobile automation tests
-    executor: node/default
+    docker:
+      - image: cimg/node:18.17
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: npm
+      
+      - run:
+          name: Install dependencies
+          command: npm install
+      
       - run:
           name: Run mobile automation tests on BrowserStack
           command: |
+            # Set environment variables explicitly
+            export BROWSERSTACK_USERNAME="${BROWSERSTACK_USERNAME}"
+            export BROWSERSTACK_ACCESS_KEY="${BROWSERSTACK_ACCESS_KEY}"
+            
             # Debug: Check if credentials are set
             echo "Checking BrowserStack credentials..."
-            if [ -z "$BROWSERSTACK_USERNAME" ]; then
+            if [ -z "${BROWSERSTACK_USERNAME}" ]; then
               echo "ERROR: BROWSERSTACK_USERNAME is not set"
               exit 1
             fi
-            if [ -z "$BROWSERSTACK_ACCESS_KEY" ]; then
+            if [ -z "${BROWSERSTACK_ACCESS_KEY}" ]; then
               echo "ERROR: BROWSERSTACK_ACCESS_KEY is not set"
               exit 1
             fi
             echo "BrowserStack credentials are set (masked for security)"
             echo "Username: ${BROWSERSTACK_USERNAME:0:3}***"
             echo "Access Key: ${BROWSERSTACK_ACCESS_KEY:0:5}***"
-            
-            # Set environment variables explicitly
-            export BROWSERSTACK_USERNAME="$BROWSERSTACK_USERNAME"
-            export BROWSERSTACK_ACCESS_KEY="$BROWSERSTACK_ACCESS_KEY"
             
             # Verify environment variables are set
             echo "Verifying environment variables..."
